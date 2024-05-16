@@ -1,29 +1,70 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Alert, FlatList } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
-const data = [
-  { id: '1', title: 'Entrenamiento 1', description: 'Descripción del Entrenamiento 1' },
-  { id: '2', title: 'Entrenamiento 2', description: 'Descripción del Entrenamiento 2' },
-  { id: '3', title: 'Entrenamiento 3', description: 'Descripción del Entrenamiento 3' },
-  { id: '4', title: 'Entrenamiento 4', description: 'Descripción del Entrenamiento 4' },
-  { id: '5', title: 'Entrenamiento 5', description: 'Descripción del Entrenamiento 5' },
-  { id: '6', title: 'Entrenamiento 4', description: 'Descripción del Entrenamiento 6' },
-  { id: '7', title: 'Entrenamiento 5', description: 'Descripción del Entrenamiento 7' },
+let data = [
 ];
 
 const App = () => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://172.20.10.2:3000/trainings');
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handlePress = (title: String) => {
     Alert.alert('Iniciar', `El botón del ${title} ha sido presionado`);
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
+      <Text style={styles.title}>{item.fin_sesion}</Text>
+      <Text style={styles.description}>{item.notas}</Text>
+      <Text style={styles.description}>{item.notas}</Text>
       <Button title="Iniciar" onPress={() => handlePress(item.title)} />
     </View>
   );
+
+  const createTraining = async () => {
+    try {
+      const response = await fetch('http://172.20.10.2:3000/trainings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Agrega aquí cualquier otra cabecera necesaria
+        },
+        body: JSON.stringify({
+          // Agrega aquí el cuerpo de la solicitud
+          "id_usuario": "1",
+          "id_plandeportivo": "1",
+          "riesgo": "biologico",
+          "inicio_sesion": "2024-04-10 18:00:00",
+          "fin_sesion": "2024-04-10 18:00:20",
+          "frecuencia_cardiaca": 200,
+          "ritmo_cardiaco": 200,
+          "calorias_quemadas": 1000,
+          "distancia_recorrida": 3,
+          "notas": "Casi me muero"
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Error en la solicitud');
+      }
+      const data = await response.json();
+    } catch (error) {
+      console.error('Error al consumir el endpoint:', error);
+      Alert.alert('Error', 'Ha ocurrido un error al intentar obtener los datos del servidor');
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -35,6 +76,7 @@ const App = () => {
         }}
         style={styles.calendar}
       />
+      <Button title="Crear" onPress={() => createTraining()} />
       <FlatList
         data={data}
         keyExtractor={item => item.id}

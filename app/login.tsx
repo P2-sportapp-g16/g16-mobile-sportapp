@@ -23,7 +23,7 @@ export default function LoginScreen() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon/ditto');
+      const response = await fetch('https://bmwemqbn0k.execute-api.us-east-2.amazonaws.com/g16/users/auth');
       const json = await response.json();
       console.log(json)
       router.navigate('/dashboard');
